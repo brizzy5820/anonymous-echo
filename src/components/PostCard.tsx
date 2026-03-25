@@ -36,8 +36,8 @@ export function PostCard({ id, nickname, category, title, content, likes, commen
               <span className="text-sm font-medium text-muted-foreground">{nickname}</span>
             </div>
             {cat && (
-              <Badge variant="secondary" className="text-xs bg-secondary/80 text-secondary-foreground border-0">
-                {cat.emoji} {cat.name}
+              <Badge variant="secondary" className="text-xs inline-flex items-center gap-1 bg-secondary/80 text-secondary-foreground border-0">
+              <cat.icon className="w-4 h-4"/> {cat.name}
               </Badge>
             )}
           </div>

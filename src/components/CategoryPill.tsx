@@ -1,13 +1,14 @@
+import { LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface CategoryPillProps {
   name: string;
-  emoji: string;
+ icon: LucideIcon;
   slug: string;
   active?: boolean;
 }
 
-export function CategoryPill({ name, emoji, slug, active }: CategoryPillProps) {
+export function CategoryPill({ name, icon:Icon, slug, active }: CategoryPillProps) {
   return (
     <Link
       to={`/category/${slug}`}
@@ -17,7 +18,7 @@ export function CategoryPill({ name, emoji, slug, active }: CategoryPillProps) {
           : "bg-secondary/50 border-border/30 text-muted-foreground hover:bg-secondary hover:text-foreground hover:border-border/60"
       }`}
     >
-      <span>{emoji}</span>
+      <span><Icon className="h-4 w-4" /></span>
       <span>{name}</span>
     </Link>
   );

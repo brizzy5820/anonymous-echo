@@ -1,11 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Grid3X3, PenSquare, Bell, User } from "lucide-react";
+import { Home, Grid3X3, PenSquare, Bell, User, LogIn } from "lucide-react";
 
 const navItems = [
   { icon: Home, label: "Home", path: "/" },
   { icon: Grid3X3, label: "Categories", path: "/categories" },
   { icon: PenSquare, label: "Post", path: "/create" },
-  { icon: Bell, label: "Alerts", path: "/notifications" },
+  { icon: LogIn, label: "Login", path: "/login" },
   { icon: User, label: "Profile", path: "/profile" },
 ];
 

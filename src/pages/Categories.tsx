@@ -23,7 +23,7 @@ const Categories = () => {
             >
               <Link to={`/category/${cat.slug}`}>
                 <div className="group p-6 rounded-xl border border-border/40 bg-card/50 hover:bg-card/80 transition-all duration-300 hover:border-primary/30 hover:glow-primary">
-                  <span className="text-4xl">{cat.emoji}</span>
+                  <cat.icon className="h-8 w-8 mb-3" />
                   <h2 className="font-display text-xl font-semibold mt-3 text-foreground group-hover:text-primary transition-colors">
                     {cat.name}
                   </h2>

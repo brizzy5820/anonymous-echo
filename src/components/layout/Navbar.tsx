@@ -16,28 +16,28 @@ export function Navbar() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+          <Link to="/" className="flex items-center gap-2.5">
+            {/* <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
               <span className="text-sm font-bold text-primary-foreground">UE</span>
-            </div>
+            </div> */}
             <span className="font-display text-lg font-bold text-foreground hidden sm:block">
               Unknown <span className="text-gradient">Express</span>
             </span>
           </Link>
 
           {/* Desktop nav links */}
-          <div className="hidden lg:flex items-center gap-1">
+          <div className="hidden lg:flex items-center gap-1.5">
             {CATEGORIES.slice(0, 4).map((cat) => (
               <Link
                 key={cat.slug}
                 to={`/category/${cat.slug}`}
-                className={`px-3 py-1.5 rounded-lg text-sm transition-colors hover:bg-secondary ${
+                className={`px-2 py-2 rounded-lg text-sm transition-colors hover:bg-secondary flex items-center gap-1.5 ${
                   location.pathname === `/category/${cat.slug}`
                     ? "bg-secondary text-foreground"
                     : "text-muted-foreground"
                 }`}
               >
-                {cat.emoji} {cat.name}
+            <div className="inline-flex px-3 gap-1.5 justify-center items-center"> <cat.icon  className="h-4 w-4 mb-0.5"/> {cat.name}</div>
               </Link>
             ))}
           </div>
@@ -103,7 +103,7 @@ export function Navbar() {
                   onClick={() => setMobileMenuOpen(false)}
                   className="px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
                 >
-                  {cat.emoji} {cat.name}
+                  <cat.icon  className="h-8 w-8 mb-3"/> {cat.name}
                 </Link>
               ))}
             </div>

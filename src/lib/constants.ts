@@ -1,10 +1,19 @@
-export const CATEGORIES = [
-  { name: "Confessions", emoji: "😶", slug: "confessions", description: "Let it all out. No judgment." },
-  { name: "Relationships", emoji: "❤️", slug: "relationships", description: "Love, heartbreak, and everything in between." },
-  { name: "Academic Stress", emoji: "📚", slug: "academic-stress", description: "The struggle is real. Share yours." },
-  { name: "Campus Gist", emoji: "🔥", slug: "campus-gist", description: "What's happening around campus?" },
-  { name: "Rants", emoji: "😤", slug: "rants", description: "Sometimes you just need to vent." },
-  { name: "Advice", emoji: "🙏", slug: "advice", description: "Ask for help or share your wisdom." },
+import  {Angry, Heart, ThumbsUp,Flame, BookOpen, Eye, HomeIcon} from 'lucide-react'
+import { LucideIcon } from 'lucide-react';
+
+type CATEGORY = {
+  name: string;
+  icon: LucideIcon;
+  slug: string;
+  description: string;
+};
+export const CATEGORIES: CATEGORY[] = [
+  { name: "Confessions", icon: Eye, slug: "confessions", description: "Let it all out. No judgment." },
+  { name: "Relationships", icon: Heart, slug: "relationships", description: "Love, heartbreak, and everything in between." },
+  { name: "Academic Stress", icon: BookOpen, slug: "academic-stress", description: "The struggle is real. Share yours." },
+  { name: "Campus Gist", icon: Flame, slug: "campus-gist", description: "What's happening around campus?" },
+  { name: "Rants", icon: Angry, slug: "rants", description: "Sometimes you just need to vent." },
+  { name: "Advice", icon: ThumbsUp, slug: "advice", description: "Ask for help or share your wisdom." },
 ] as const;
 
 export type CategorySlug = (typeof CATEGORIES)[number]["slug"];

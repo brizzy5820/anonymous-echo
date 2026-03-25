@@ -22,7 +22,6 @@ const CreatePost = () => {
     const name = randomNicknames[Math.floor(Math.random() * randomNicknames.length)];
     setNickname(`${name}_${Math.floor(Math.random() * 999)}`);
   };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!nickname || !selectedCategory || !title || !content) {
@@ -73,13 +72,13 @@ const CreatePost = () => {
                     type="button"
                     key={cat.slug}
                     onClick={() => setSelectedCategory(cat.slug)}
-                    className={`p-3 rounded-xl text-left transition-all border ${
+                    className={`p-3 rounded-xl text-left transition-all border flex gap-3 items-center ${
                       selectedCategory === cat.slug
                         ? "bg-primary/15 border-primary/40 glow-primary"
                         : "bg-card/50 border-border/30 hover:border-border/60"
                     }`}
                   >
-                    <span className="text-xl">{cat.emoji}</span>
+                    <span className="text-xl"><cat.icon className="w-4 h-4"/></span>
                     <p className="text-sm font-medium mt-1 text-foreground">{cat.name}</p>
                   </button>
                 ))}
