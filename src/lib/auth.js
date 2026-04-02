@@ -1,29 +1,33 @@
-
 import { auth, db } from "./firebase";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   updateProfile,
-  signOut
+  signOut,
 } from "firebase/auth";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 // Sign up
 export const signUp = async (email, password, displayName) => {
   const { user } = await createUserWithEmailAndPassword(auth, email, password);
-  //  SET displayName in Firebase Auth
+
+  // Set displayName in Firebase Auth profile
   await updateProfile(user, {
-    displayName
+    displayName,
   });
 
-  // Save user profile to Firestore on signup
-  await setDoc(doc(db, "users", user.uid), {
-    uid: user.uid,
-    email,
-    displayName,
-    createdAt: serverTimestamp(),
-    lastLogin: serverTimestamp(),
-  });
+  // Keep auth success even if Firestore profile write fails.
+  try {
+    await setDoc(doc(db, "users", user.uid), {
+      uid: user.uid,
+      email,
+      displayName,
+      createdAt: serverTimestamp(),
+      lastLogin: serverTimestamp(),
+    });
+  } catch (error) {
+    console.error("Unable to persist user profile in Firestore:", error);
+  }
 
   return user;
 };
@@ -32,10 +36,18 @@ export const signUp = async (email, password, displayName) => {
 export const signIn = async (email, password) => {
   const { user } = await signInWithEmailAndPassword(auth, email, password);
 
-  // Update last login on every sign in
-  await setDoc(doc(db, "users", user.uid), {
-    lastLogin: serverTimestamp(),
-  }, { merge: true }); // merge:true so it doesn't overwrite the whole doc
+  // Update last login, but do not block login flow if Firestore is restricted/offline.
+  try {
+    await setDoc(
+      doc(db, "users", user.uid),
+      {
+        lastLogin: serverTimestamp(),
+      },
+      { merge: true },
+    );
+  } catch (error) {
+    console.error("Unable to update lastLogin in Firestore:", error);
+  }
 
   return user;
 };

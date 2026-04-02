@@ -21,7 +21,7 @@ export function Navbar() {
               <span className="text-sm font-bold text-primary-foreground">UE</span>
             </div> */}
             <span className="font-display text-lg font-bold text-foreground hidden sm:block">
-              Unknown <span className="text-gradient">Express</span>
+              Free <span className="text-gradient">Express</span>
             </span>
           </Link>
 

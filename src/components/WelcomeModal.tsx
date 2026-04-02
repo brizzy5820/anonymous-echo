@@ -3,8 +3,12 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 
-const WelcomeModal = ({ open, username, onContinue }: any) => {
-
+type WelcomeModalProps = {
+  open: boolean;
+  username: string;
+  onContinue: () => void;
+};
+const WelcomeModal = ({ open, username, onContinue }: WelcomeModalProps) => {
   useEffect(() => {
     if (!open) return;
 
@@ -13,7 +17,7 @@ const WelcomeModal = ({ open, username, onContinue }: any) => {
     }, 4000);
 
     return () => clearTimeout(timer);
-  }, [open]);
+  }, [open, onContinue]);
 
   return (
     <AnimatePresence>

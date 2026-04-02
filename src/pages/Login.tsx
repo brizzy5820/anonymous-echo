@@ -2,15 +2,19 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link , useNavigate} from "react-router-dom";
-import { motion } from "framer-motion";
-import { Mail, Lock, ArrowRight,Lightbulb, Loader, EyeOff, Eye } from "lucide-react";
+import { motion , AnimatePresence} from "framer-motion";
+import { Mail, Lock, ArrowRight,Lightbulb, Loader, EyeOff, Eye , AlertCircle,X} from "lucide-react";
 import { useState, useEffect } from "react";
+import { FirebaseError } from "firebase/app";
 import { signIn } from "../lib/auth";
+// Error Messages
 const ERROR_MESSAGES: Record<string, string> = {
-  "auth/email-already-in-use": "That email is already registered. Try signing in instead.",
-  "auth/invalid-email": "That doesn't look like a valid email address.",
-  "auth/weak-password": "Password must be at least 6 characters.",
-  "auth/network-request-failed": "Network error. Check your connection and try again.",
+  "auth/invalid-email": "That doesn't look like a valid email.",
+  "auth/user-not-found": "No account found with this email.",
+  "auth/wrong-password": "Incorrect password. Try again.",
+  "auth/invalid-credential": "Invalid email or password.",
+  "auth/too-many-requests": "Too many attempts. Try again later.",
+  "auth/network-request-failed": "Network error. Check your connection.",
 };
 
 
@@ -34,15 +38,42 @@ const Login = () => {
     try {
         await signIn(email, password)    // await signIn(email, password);
       navigate("/");
-    } catch (err: any) {
-      const friendly = ERROR_MESSAGES[err.code] || err.message || "Something went wrong. Please try again.";
+    } catch (error: unknown) {
+      const firebaseError = error instanceof FirebaseError ? error : null;
+      const friendly = (firebaseError?.code ? ERROR_MESSAGES[firebaseError.code] : undefined) || firebaseError?.message || "Something went wrong. Please try again.";
       setError(friendly);
     } finally {
       setLoading(false);
     }   
    }
   return (
+      
       <div className="container mx-auto px-4 py-16 flex items-center justify-center min-h-[calc(100vh-8rem)]">
+        <AnimatePresence>
+  {error && (
+    <motion.div
+      key="error-toast"
+      initial={{ opacity: 0, y: -60 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -60 }}
+      className="fixed top-5 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4"
+    >
+      <div className="relative flex items-start gap-3 rounded-xl border border-red-500/30 bg-red-950/80 backdrop-blur-md px-4 py-3 shadow-xl">
+        <motion.div
+          className="absolute bottom-0 left-0 h-[2px] bg-red-500/60"
+          initial={{ width: "100%" }}
+          animate={{ width: "0%" }}
+          transition={{ duration: 5, ease: "linear" }}
+        />
+        <AlertCircle className="h-5 w-5 text-red-400 mt-0.5" />
+        <p className="flex-1 text-sm text-red-200">{error}</p>
+        <button onClick={() => setError("")}>
+          <X className="h-4 w-4 text-red-400" />
+        </button>
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -81,18 +112,16 @@ const Login = () => {
                 className="pl-10 bg-card/50 border-border/40"
               />
               <button
-              
                 type="button"
                 className="absolute right-3 top-1/2 -translate-y-1/2"
                 tabIndex={-1}
-                onClick={() => setShowPassword((prev) => !prev)}>
-                {showPassword?
-                 <Eye className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" onClick={()=>setShowPassword(true)} />
-                
-                :
-                
-                   <EyeOff className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" onClick={()=>setShowPassword(false)} />
-                }
+                onClick={() => setShowPassword((prev) => !prev)}
+              >
+                {showPassword ? (
+                  <Eye className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <EyeOff className="h-4 w-4 text-muted-foreground" />
+                )}
               </button>
             </div>
 

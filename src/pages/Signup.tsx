@@ -15,6 +15,7 @@ import {
   EyeOff
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { FirebaseError } from "firebase/app";
 import { signUp } from "../lib/auth";
 import WelcomeModal from "@/components/WelcomeModal";
 
@@ -63,10 +64,11 @@ const Signup = () => {
       // Show welcome modal instead of instant redirect
       setShowWelcome(true);
 
-    } catch (err: any) {
+    } catch (error: unknown) {
+      const firebaseError = error instanceof FirebaseError ? error : null;
       const friendly =
-        ERROR_MESSAGES[err.code] ||
-        err.message ||
+        (firebaseError?.code ? ERROR_MESSAGES[firebaseError.code] : undefined) ||
+        firebaseError?.message ||
         "Something went wrong. Please try again.";
       setError(friendly);
     } finally {
@@ -221,7 +223,7 @@ const Signup = () => {
       <WelcomeModal
         open={showWelcome}
         username={username}
-        onContinue={() => navigate("/")}
+        onContinue={() => navigate("/", { replace: true })}
       />
     </div>
   );

@@ -31,7 +31,6 @@ const CategoryFeed = () => {
           <ArrowLeft className="h-4 w-4" />
           Back to feed
         </Link>
-
         <div className="mb-8">
           <div className="inline-flex items-center gap-3">
             <cat.icon className="w-5 h-5 mt-2" />
