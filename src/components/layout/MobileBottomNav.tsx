@@ -1,25 +1,74 @@
-import { Link, useLocation } from "react-router-dom";
-import { Home, Grid3X3, PenSquare, Bell, User, LogIn } from "lucide-react";
-
-const navItems = [
-  { icon: Home, label: "Home", path: "/" },
-  { icon: Grid3X3, label: "Categories", path: "/categories" },
-  { icon: PenSquare, label: "Post", path: "/create" },
-  { icon: LogIn, label: "Login", path: "/login" },
-  { icon: User, label: "Profile", path: "/profile" },
-];
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Home, Grid3X3, PenSquare, User, LogIn, LogOut } from "lucide-react";
+import { useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { logOut } from "@/lib/auth";
+import {toast} from 'sonner'
 
 export function MobileBottomNav() {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const [user, setUser] = useState(null);
+
+  // 🔥 Listen for auth changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // 🔥 Handle logout
+ const handleLogout = async () => {
+  await logOut();
+
+  const toastId = toast("You have been logged out", {
+    duration: 3000,
+    
+    className:
+      "bg-red-700  item-start border-border text-foreground shadow-lg rounded-xl",
+    action: {
+      label: "✕",
+      onClick: () => toast.dismiss(toastId),
+    },
+  });
+};
+
+  const navItems = [
+    { icon: Home, label: "Home", path: "/" },
+    { icon: Grid3X3, label: "Categories", path: "/categories" },
+    { icon: PenSquare, label: "Post", path: "/create" },
+
+    // 👇 Dynamic item
+    user
+      ? { icon: LogOut, label: "Logout", action: handleLogout }
+      : { icon: LogIn, label: "Login", path: "/login" },
+
+    { icon: User, label: "Profile", path: "/profile" },
+  ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-border/30 sm:hidden">
       <div className="flex items-center justify-around py-2">
-        {navItems.map((item) => {
-          const isActive = location.pathname === item.path;
+        {navItems.map((item, index) => {
+          const isActive = item.path && location.pathname === item.path;
           const isCreate = item.path === "/create";
 
-          return (
+          return item.action ? (
+            // 🔥 Logout button
+            <button
+              key={index}
+              onClick={item.action}
+              className="flex flex-col items-center gap-0.5 px-3 py-1 text-muted-foreground"
+            >
+              <item.icon className="h-5 w-5" />
+              <span className="text-[10px] font-medium">{item.label}</span>
+            </button>
+          ) : (
+            // 🔥 Normal link
             <Link
               key={item.path}
               to={item.path}

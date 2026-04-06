@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Navigate, Route, Routes,useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,6 +16,8 @@ import NotFound from "./pages/NotFound";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "./lib/firebase";
 import { ReactNode, useEffect, useState } from "react";
+import { AuthProvider } from "@/context/AuthContext"
+import AuthorProfile from "./pages/AuthorProfile";
 
 const queryClient = new QueryClient();
 
@@ -25,30 +27,51 @@ type AuthGateProps = {
   children: ReactNode;
 };
 
+const AuthLoadingScreen = () => (
+  <div className="min-h-screen grid place-items-center bg-background text-muted-foreground text-sm">
+    Loading authentication...
+  </div>
+);
+
 const ProtectedRoute = ({ isLoading, isAuthenticated, children }: AuthGateProps) => {
-  if (isLoading) return null;
+  if (isLoading) return <AuthLoadingScreen />;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   return <>{children}</>;
 };
 
 const GuestOnlyRoute = ({ isLoading, isAuthenticated, children }: AuthGateProps) => {
-  const location = useLocation() // import this from react-router-dom
-  if (isLoading) return null;
-  // Don't redirect if we're on signup — let the page handle its own redirect
-  if (isAuthenticated && location.pathname !== "/signup") return <Navigate to="/" replace />;
+  // Never block login/signup with a blank screen while auth initializes.
+  if (isLoading) return <>{children}</>;
+  if (isAuthenticated) return <Navigate to="/" replace />;
   return <>{children}</>;
 };
+
 const AppRoutes = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
-      setUser(nextUser);
-      setIsLoadingAuth(false);
-    });
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (nextUser) => {
+        setUser(nextUser);
+        setIsLoadingAuth(false);
+      },
+      (error) => {
+        console.error("Auth state listener failed:", error);
+        setIsLoadingAuth(false);
+      },
+    );
 
-    return () => unsubscribe();
+    // Safety net: prevent auth-loading deadlock from blanking guarded routes.
+    const authInitTimeout = setTimeout(() => {
+      setIsLoadingAuth(false);
+    }, 2500);
+
+    return () => {
+      unsubscribe();
+      clearTimeout(authInitTimeout);
+    };
   }, []);
 
   const isAuthenticated = Boolean(user);
@@ -57,6 +80,7 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/create" element={<CreatePost />} />
+      <Route path="/user/:uid" element={<AuthorProfile />} />
       <Route path="/post/:id" element={<PostDetail />} />
       <Route path="/categories" element={<Categories />} />
       <Route path="/category/:slug" element={<CategoryFeed />} />
@@ -99,13 +123,15 @@ const AppRoutes = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
         <AppRoutes />
       </BrowserRouter>
     </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

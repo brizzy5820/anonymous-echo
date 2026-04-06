@@ -2,12 +2,56 @@ import { Layout } from "@/components/layout/Layout";
 import { CATEGORIES } from "@/lib/constants";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader } from "lucide-react";
+import { useEffect, useState } from "react";
+import { collection, getCountFromServer, query, where } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+
+// Stores post count per category slug
+type CategoryCounts = Record<string, number>;
 
 const Categories = () => {
+  const [counts, setCounts] = useState<CategoryCounts>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      setLoading(true);
+      try {
+        // Fire all count queries simultaneously — one per category
+        // getCountFromServer is efficient — it doesn't download the actual documents
+        // it just returns the number of matching documents from Firestore
+        const results = await Promise.all(
+          CATEGORIES.map(async (cat) => {
+            const q = query(
+              collection(db, "posts"),
+              where("category", "==", cat.slug)
+            );
+            const snapshot = await getCountFromServer(q);
+            return { slug: cat.slug, count: snapshot.data().count };
+          })
+        );
+
+        // Convert array to object keyed by slug for easy lookup
+        // { "confessions": 12, "relationships": 8, ... }
+        const countMap: CategoryCounts = {};
+        results.forEach(({ slug, count }) => {
+          countMap[slug] = count;
+        });
+        setCounts(countMap);
+      } catch (err) {
+        console.error("Failed to fetch category counts:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCounts();
+  }, []);
+
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 max-w-[1200px]">
         <h1 className="font-display text-3xl font-bold mb-2">
           Browse <span className="text-gradient">Categories</span>
         </h1>
@@ -22,15 +66,44 @@ const Categories = () => {
               transition={{ delay: i * 0.08 }}
             >
               <Link to={`/category/${cat.slug}`}>
-                <div className="group p-6 rounded-xl border border-border/40 bg-card/50 hover:bg-card/80 transition-all duration-300 hover:border-primary/30 hover:glow-primary">
-                  <cat.icon className="h-8 w-8 mb-3" />
-                  <h2 className="font-display text-xl font-semibold mt-3 text-foreground group-hover:text-primary transition-colors">
-                    {cat.name}
-                  </h2>
-                  <p className="text-sm text-muted-foreground mt-1 mb-4">{cat.description}</p>
-                  <span className="inline-flex items-center gap-1 text-sm text-primary font-medium">
-                    Explore <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
-                  </span>
+                <div className="group p-6 rounded-xl border border-border/40 bg-card/50 hover:bg-card/80 transition-all duration-300 hover:border-primary/30 hover:glow-primary h-full flex flex-col">
+
+                  {/* Icon + name */}
+                  <div className="inline-flex items-center gap-3 mb-2">
+                    <cat.icon className="w-5 h-5" />
+                    <h2 className="font-display text-lg font-semibold text-foreground">
+                      {cat.name}
+                    </h2>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-sm text-muted-foreground mt-1 mb-4 flex-1">
+                    {cat.description}
+                  </p>
+
+                  {/* Footer — post count + explore link */}
+                  <div className="flex items-center justify-between mt-auto pt-3 border-t border-border/20">
+                    {/* Live post count */}
+                    <span className="text-xs text-muted-foreground">
+                      {loading ? (
+                        <span className="flex items-center gap-1">
+                          <Loader className="h-3 w-3 animate-spin" />
+                          loading...
+                        </span>
+                      ) : (
+                        <>
+                          {counts[cat.slug] ?? 0}{" "}
+                          {(counts[cat.slug] ?? 0) === 1 ? "post" : "posts"}
+                        </>
+                      )}
+                    </span>
+
+                    {/* Explore arrow */}
+                    <span className="inline-flex items-center gap-1 text-sm text-primary font-medium">
+                      Explore{" "}
+                      <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                  </div>
                 </div>
               </Link>
             </motion.div>

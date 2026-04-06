@@ -12,7 +12,7 @@ const CategoryFeed = () => {
   if (!cat) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-16 text-center">
+        <div className="container mx-auto px-4 py-16 text-center ">
           <h1 className="font-display text-2xl font-bold">
             Category not found
           </h1>
@@ -23,7 +23,7 @@ const CategoryFeed = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 max-w-[1200px]">
         <Link
           to="/"
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"

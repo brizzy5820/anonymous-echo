@@ -1,4 +1,4 @@
-import  {Angry, Heart, ThumbsUp,Flame, BookOpen, Eye, HomeIcon} from 'lucide-react'
+import  {Angry, Heart, ThumbsUp,Flame, BookOpen, Eye,Send,Laugh} from 'lucide-react'
 import { LucideIcon } from 'lucide-react';
 
 type CATEGORY = {
@@ -8,10 +8,11 @@ type CATEGORY = {
   description: string;
 };
 export const CATEGORIES: CATEGORY[] = [
-  { name: "Confessions", icon: Eye, slug: "confessions", description: "Let it all out. No judgment." },
+  { name: "General", icon:Send , slug: "general", description: "For you " },
   { name: "Relationships", icon: Heart, slug: "relationships", description: "Love, heartbreak, and everything in between." },
+    { name: "Memes", icon: Laugh, slug: "memes", description: "Share the funniest moments." },
   { name: "Academic Stress", icon: BookOpen, slug: "academic-stress", description: "The struggle is real. Share yours." },
-  { name: "Campus Gist", icon: Flame, slug: "campus-gist", description: "What's happening around campus?" },
+    { name: "Confessions", icon: Eye, slug: "confessions", description: "Let it all out. No judgment." },
   { name: "Rants", icon: Angry, slug: "rants", description: "Sometimes you just need to vent." },
   { name: "Advice", icon: ThumbsUp, slug: "advice", description: "Ask for help or share your wisdom." },
 ] as const;
