@@ -5,7 +5,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 import {
   Edit3, Save, X, Users, Heart, FileText,
-  Loader, Pin, PinOff, Trash2, ArrowLeft
+  Loader, Pin, PinOff, Trash2, ArrowLeft,
+  Eye
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
@@ -585,7 +586,7 @@ function PostCardWithActions({
                 className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors"
                 onClick={() => setMenuOpen(false)}
               >
-                👁 View Post
+               <Eye className="h-4 w-4" /> View Post
               </Link>
 
               {/* Pin / Unpin */}
