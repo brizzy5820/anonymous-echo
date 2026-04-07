@@ -1,10 +1,10 @@
 import { Link , useNavigate} from "react-router-dom";
-import { Heart, MessageCircle, Clock, MoreVertical, UserPlus, UserCheck, Flag, Loader } from "lucide-react";
+import { Heart, MessageCircle, Clock, MoreVertical, UserPlus, UserCheck, Flag, Loader,Trash2, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { CATEGORIES } from "@/lib/constants";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
-import { toggleLike, reportPost } from "@/lib/posts";
+import { toggleLike, reportPost , deletePost} from "@/lib/posts";
 import { followUser, unfollowUser, fetchProfile } from "@/lib/profile";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
@@ -37,11 +37,6 @@ export function PostCard({
   const [likeCount, setLikeCount] = useState(likes);
   const [liking, setLiking] = useState(false);
 
-  const authorLink = uid
-  ? uid === user?.uid
-    ? "/profile"
-    : `/user/${uid}`
-  : "#"; // guest posts have no profile link
 
   // Three dot menu
   const [menuOpen, setMenuOpen] = useState(false);
@@ -55,6 +50,8 @@ export function PostCard({
   const [reportOpen, setReportOpen] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [reporting, setReporting] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+  const [deleted, setDeleted] = useState(false);
   // Close menu on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -95,7 +92,9 @@ export function PostCard({
     }
   };
 
- const handleFollow = async () => {
+ const handleFollow = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
   if (!user) { toast.error("Login to follow users"); return; }
   if (!uid || uid === user.uid) return;
 
@@ -131,10 +130,12 @@ export function PostCard({
   const handleReport = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
     if (!reportReason.trim()) {
       toast.error("Please select a reason");
       return;
     }
+    
     setReporting(true);
     try {
       await reportPost(id, {
@@ -152,6 +153,25 @@ export function PostCard({
     }
   };
 
+   const handleDeletePost = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user || user.uid !== uid) return;
+
+    setDeleting(true);
+    try {
+      await deletePost(id);
+      toast.success("Post deleted");
+      setDeleted(true);
+    } catch {
+      toast.error("Failed to delete post");
+    } finally {
+      setDeleting(false);
+      setMenuOpen(false);
+    }
+  };
+
+  if (deleted) return null;
   return (
     <>
       <motion.div
@@ -252,24 +272,42 @@ export function PostCard({
                         )}
 
                         {/* View profile */}
-                        {uid && (
+                        {uid && uid !== user?.uid && (
                           <Link
                             to={uid
-    ? uid === user?.uid
-      ? "/profile"        // own post → own profile
-      : `/user/${uid}`    // someone else's post → their profile
-    : "#"  }
+                               ? `/user/${uid}`
+                              : "#"}
                             onClick={(e) => e.stopPropagation()}
                             className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors"
                           >
                             👤 View Profile
                           </Link>
                         )}
+                          {/* View post */}
+                        <Link
+                          to={`/post/${id}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors"
+                        >
+                        <Eye className="w-4 h-4"/> View Post
+                        </Link>
+
+                        {/* Delete option for own post */}
+                        {uid && uid === user?.uid && (
+                          <button
+                            onClick={handleDeletePost}
+                            disabled={deleting}
+                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors disabled:opacity-60"
+                          >
+                            {deleting ? <Loader className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />} Delete Post
+                          </button>
+                        )}
 
                         <div className="border-t border-border/30" />
 
                         {/* Report */}
-                        <button
+                      {user?.uid!==uid&&(
+                          <button
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -280,6 +318,7 @@ export function PostCard({
                         >
                           <Flag className="h-4 w-4" /> Report Post
                         </button>
+                      )}
                       </motion.div>
                     )}
                   </AnimatePresence>

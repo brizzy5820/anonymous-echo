@@ -10,11 +10,12 @@ import {
   Users, Bell, Search, Hash, Radio, Mic, Loader,Send, Share2, Camera, Repeat, PenTool, Smile, Globe, Bookmark
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { fetchPosts } from "@/lib/posts";
 import { Post } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/context/AuthContext";
 
 // ── Scattered icon wallpaper ───────────────────────────────
 // Fixed positions, low opacity — creates a WhatsApp-style
@@ -178,6 +179,8 @@ const Index = () => {
   const [heroSlide, setHeroSlide] = useState(0);
   const [tipSlide, setTipSlide]   = useState(0);
   const heroTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const topPost       = [...posts].sort((a, b) => b.likes - a.likes)[0];
   const trendingPosts = [...posts].sort((a, b) => b.likes - a.likes).slice(0, 3);
@@ -209,6 +212,10 @@ const Index = () => {
 
   const slide    = HERO_SLIDES[heroSlide];
   const TipIcon  = TIPS[tipSlide].Icon;
+  const authorRoute = (uid?: string | null) => {
+    if (!uid) return "#";
+    return uid === user?.uid ? "/profile" : `/user/${uid}`;
+  };
 
   const goNext = () => {
     setHeroSlide((s) => (s + 1) % HERO_SLIDES.length);
@@ -341,18 +348,26 @@ const Index = () => {
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
             <Link to={`/post/${topPost.id}`}>
               {/* Same bg/border as every PostCard */}
-              <div className="group rounded-xl border border-border/40 bg-card/50 hover:bg-card/80 p-5 transition-all duration-300 hover:border-primary/30 hover:glow-primary">
+              <div className="group rounded-xl border border-amber-400/40 bg-card/70 shadow-[0_0_0_1px_rgba(251,191,36,0.12),0_10px_30px_-18px_rgba(251,191,36,0.75)] hover:bg-card/90 p-5 transition-all duration-300 hover:border-amber-300/60">
                 <div className="flex items-start gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground border border-border/40 px-2 py-0.5 rounded-full mb-3">
                       <Star className="h-3 w-3" /> Top Chat
                     </div>
-                    <div className="flex items-center gap-2 mb-3">
+                    <button
+                      type="button"
+                      className="flex items-center gap-2 mb-3 w-fit"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (topPost.uid) navigate(authorRoute(topPost.uid));
+                      }}
+                    >
                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/40 to-accent/40 flex items-center justify-center">
                         <span className="text-xs font-bold text-foreground">{topPost.nickname[0]?.toUpperCase()}</span>
                       </div>
-                      <span className="text-sm font-medium text-muted-foreground">{topPost.nickname}</span>
-                    </div>
+                      <span className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">{topPost.nickname}</span>
+                    </button>
                     <h3 className="font-display text-lg sm:text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
                       {topPost.title}
                     </h3>
@@ -431,14 +446,22 @@ const Index = () => {
                 transition={{ delay: i * 0.07 }}
               >
                 <Link to={`/post/${post.id}`}>
-                  <div className="group rounded-xl border border-border/40 bg-card/50 hover:bg-card/80 p-5 transition-all duration-300 hover:border-primary/30 hover:glow-primary h-full flex flex-col">
-                    <div className="flex items-center gap-2 mb-3">
+                  <div className="group rounded-xl border border-primary/35 bg-card/60 shadow-[0_8px_24px_-18px_rgba(99,102,241,0.8)] hover:bg-card/85 p-5 transition-all duration-300 hover:border-primary/60 h-full flex flex-col">
+                    <button
+                      type="button"
+                      className="flex items-center gap-2 mb-3 w-fit"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (post.uid) navigate(authorRoute(post.uid));
+                      }}
+                    >
                       <span className="font-display text-sm font-bold text-muted-foreground w-5">#{i + 1}</span>
                       <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/40 to-accent/40 flex items-center justify-center">
                         <span className="text-[10px] font-bold text-foreground">{post.nickname[0]?.toUpperCase()}</span>
                       </div>
-                      <span className="text-xs text-muted-foreground truncate">{post.nickname}</span>
-                    </div>
+                      <span className="text-xs text-muted-foreground truncate hover:text-primary transition-colors">{post.nickname}</span>
+                    </button>
                     <h3 className="font-semibold text-foreground text-sm line-clamp-2 mb-2 group-hover:text-primary transition-colors">
                       {post.title}
                     </h3>

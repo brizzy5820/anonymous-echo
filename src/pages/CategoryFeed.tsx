@@ -1,13 +1,33 @@
 import { Layout } from "@/components/layout/Layout";
 import { PostCard } from "@/components/PostCard";
-import { CATEGORIES, MOCK_POSTS } from "@/lib/constants";
+import { CATEGORIES } from "@/lib/constants";
+import { fetchPosts } from "@/lib/posts";
+import { Post } from "@/lib/types";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const CategoryFeed = () => {
   const { slug } = useParams();
   const cat = CATEGORIES.find((c) => c.slug === slug);
-  const posts = MOCK_POSTS.filter((p) => p.category === slug);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadPosts = async () => {
+      if (!slug) return;
+      setLoading(true);
+      try {
+        const categoryPosts = await fetchPosts(slug);
+        setPosts(categoryPosts);
+      } catch (error) {
+        console.error("Failed to fetch category posts:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadPosts();
+  }, [slug]);
 
   if (!cat) {
     return (
@@ -41,7 +61,12 @@ const CategoryFeed = () => {
           <p className="text-muted-foreground">{cat.description}</p>
         </div>
 
-        {posts.length > 0 ? (
+        {loading ? (
+          <div className="py-16 flex items-center justify-center text-muted-foreground">
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            Loading posts...
+          </div>
+        ) : posts.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {posts.map((post) => (
               <PostCard key={post.id} {...post} />
