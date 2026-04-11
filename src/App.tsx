@@ -18,6 +18,7 @@ import { auth } from "./lib/firebase";
 import { ReactNode, useEffect, useState } from "react";
 import { AuthProvider } from "@/context/AuthContext"
 import AuthorProfile from "./pages/AuthorProfile";
+import Landing from "./pages/Landing";
 
 const queryClient = new QueryClient();
 
@@ -82,6 +83,7 @@ const AppRoutes = () => {
       <Route path="/create" element={<CreatePost />} />
       <Route path="/user/:uid" element={<AuthorProfile />} />
       <Route path="/post/:id" element={<PostDetail />} />
+      <Route path="/landing" element={<Landing />} />
       <Route path="/categories" element={<Categories />} />
       <Route path="/category/:slug" element={<CategoryFeed />} />
       <Route

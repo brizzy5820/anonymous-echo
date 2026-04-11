@@ -4,9 +4,9 @@ import { CATEGORIES } from "@/lib/constants";
 import { fetchPosts } from "@/lib/posts";
 import { Post } from "@/lib/types";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 ,Sparkle} from "lucide-react";
 import { useEffect, useState } from "react";
-
+import { CategoryPill } from "@/components/CategoryPill";
 const CategoryFeed = () => {
   const { slug } = useParams();
   const cat = CATEGORIES.find((c) => c.slug === slug);
@@ -43,6 +43,17 @@ const CategoryFeed = () => {
 
   return (
     <Layout>
+        {/* ── CATEGORY PILLS ────────────────────────── */}
+            <div className="border-b border-border/30 sticky top-16 z-40 bg-background/90 backdrop-blur-md">
+              <div className="container mx-auto px-4 py-3 max-w-[1200px]">
+                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+                  <CategoryPill name="All" icon={Sparkle} slug="" active />
+                  {CATEGORIES.map((cat) => (
+                    <CategoryPill key={cat.slug} name={cat.name} icon={cat.icon} slug={cat.slug} />
+                  ))}
+                </div>
+              </div>
+            </div>
       <div className="container mx-auto px-4 py-8 max-w-[1200px]">
         <Link
           to="/"

@@ -1,5 +1,5 @@
 import { LucideIcon } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 interface CategoryPillProps {
   name: string;
@@ -9,9 +9,17 @@ interface CategoryPillProps {
 }
 
 export function CategoryPill({ name, icon:Icon, slug, active }: CategoryPillProps) {
+    const { pathname } = useLocation();
+     const isActive = active !== undefined
+    ? active  // if parent explicitly passes active, respect it
+    : slug === ""
+      ? !pathname.startsWith("/category")
+      : pathname === `/category/${slug}`;
+
+  const href = slug === "" ? "/" : `/category/${slug}`;
   return (
     <Link
-      to={`/category/${slug}`}
+      to={href}
       className={`inline-flex items-center gap-1.5  max-w-[1200px] px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 whitespace-nowrap border ${
         active
           ? "bg-primary/20 border-primary/40 text-foreground glow-primary"

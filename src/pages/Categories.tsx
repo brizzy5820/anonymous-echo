@@ -2,11 +2,12 @@ import { Layout } from "@/components/layout/Layout";
 import { CATEGORIES } from "@/lib/constants";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Loader } from "lucide-react";
+import { ArrowRight, Loader, Sparkle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { collection, getCountFromServer, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
+import { CategoryPill } from "@/components/CategoryPill";
 // Stores post count per category slug
 type CategoryCounts = Record<string, number>;
 
@@ -51,6 +52,17 @@ const Categories = () => {
 
   return (
     <Layout>
+           {/* ── CATEGORY PILLS ────────────────────────── */}
+            <div className="border-b border-border/30 sticky top-16 z-40 bg-background/90 backdrop-blur-md">
+              <div className="container mx-auto px-4 py-3 max-w-[1200px]">
+                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+                  <CategoryPill name="All" icon={Sparkle} slug="" active />
+                  {CATEGORIES.map((cat) => (
+                    <CategoryPill key={cat.slug} name={cat.name} icon={cat.icon} slug={cat.slug} />
+                  ))}
+                </div>
+              </div>
+            </div>
       <div className="container mx-auto px-4 py-8 max-w-[1200px]">
         <h1 className="font-display text-3xl font-bold mb-2">
           Browse <span className="text-gradient">Categories</span>
