@@ -53,7 +53,7 @@ const CreatePost = () => {
       await createPost({
         nickname: nickname.trim(),
         category: selectedCategory,
-        title: title.trim() || "",  // title is optional — fallback to Untitled
+        title: title.trim() || "",
         content: content.trim(),
         uid: user?.uid ?? null,
       });
@@ -66,6 +66,9 @@ const CreatePost = () => {
       setLoading(false);
     }
   };
+
+  // Find the selected category object for the icon display
+  const selectedCat = CATEGORIES.find((c) => c.slug === selectedCategory);
 
   return (
     <Layout>
@@ -92,7 +95,7 @@ const CreatePost = () => {
               {/* ── LEFT COLUMN ── */}
               <div className="lg:col-span-2 flex flex-col gap-5">
 
-                {/* NICKNAME SECTION */}
+                {/* NICKNAME */}
                 <div className="rounded-xl border border-border/40 bg-card/40 p-5 space-y-3">
                   <div className="flex items-center gap-2 mb-1">
                     <div className="w-1 h-4 rounded-full bg-primary" />
@@ -120,7 +123,6 @@ const CreatePost = () => {
                   ) : (
                     <div className="flex gap-2">
                       <Input
-                      
                         placeholder="Pick a nickname..."
                         value={nickname}
                         onChange={(e) => setNickname(e.target.value)}
@@ -148,14 +150,78 @@ const CreatePost = () => {
                   </p>
                 </div>
 
-                {/* TITLE SECTION */}
+                {/* ── CATEGORY — mobile select, shown here on mobile only ── */}
+                {/* On desktop this section is hidden — the right column handles it */}
+                {/* On mobile it renders inline before the content box */}
+                <div className="lg:hidden rounded-xl border border-border/40 bg-card/40 p-5 space-y-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-1 h-4 rounded-full bg-primary" />
+                    <label className="text-sm font-semibold text-foreground">
+                      Category
+                    </label>
+                    <span className="text-xs text-red-400 ml-1">Required</span>
+                  </div>
+
+                  {/* Native select — enclosed, clean, works perfectly on mobile */}
+                  <div className="relative">
+                    {/* Show selected category icon inside the select box */}
+                    {selectedCat && (
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <selectedCat.icon className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                    )}
+                    <select
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      disabled={loading}
+                      className={`
+                        w-full h-11 rounded-lg border border-border/50
+                        bg-background/60 text-sm transition-colors
+                        focus:outline-none focus:border-primary/50
+                        appearance-none cursor-pointer
+                        ${selectedCat ? "pl-10 pr-10" : "px-3 pr-10"}
+                        ${selectedCategory ? "text-foreground" : "text-muted-foreground"}
+                        disabled:opacity-50
+                      `}
+                      style={{
+                        // Ensures the select background matches dark theme
+                        backgroundColor: "hsl(var(--background) / 0.6)",
+                        color: selectedCategory ? "hsl(var(--foreground))" : "hsl(var(--muted-foreground))",
+                      }}
+                    >
+                      <option value="" disabled>
+                        Select a category...
+                      </option>
+                      {CATEGORIES.map((cat) => (
+                        <option key={cat.slug} value={cat.slug}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
+
+                    {/* Custom chevron arrow — replaces the default select arrow */}
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                      <svg className="h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  {/* Show selected category name below as confirmation */}
+                  {selectedCat && (
+                    <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                      <selectedCat.icon className="h-3 w-3" />
+                      Posting in <span className="text-foreground font-medium">{selectedCat.name}</span>
+                    </p>
+                  )}
+                </div>
+
+                {/* TITLE */}
                 <div className="rounded-xl border border-border/40 bg-card/40 p-5 space-y-3">
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
                       <div className="w-1 h-4 rounded-full bg-primary/60" />
-                      <label className="text-sm font-semibold text-foreground">
-                        Title
-                      </label>
+                      <label className="text-sm font-semibold text-foreground">Title</label>
                     </div>
                     <span className="text-xs text-muted-foreground bg-secondary/50 px-2 py-0.5 rounded-full border border-border/30">
                       Optional
@@ -169,15 +235,12 @@ const CreatePost = () => {
                     disabled={loading}
                     maxLength={120}
                   />
-                  <div className="flex items-center justify-between">
-                  
-                    <span className="text-xs text-muted-foreground">
-                      {title.length}/120
-                    </span>
-                  </div>
+                  <span className="text-xs text-muted-foreground block text-right">
+                    {title.length}/120
+                  </span>
                 </div>
 
-                {/* CONTENT SECTION */}
+                {/* CONTENT */}
                 <div className="rounded-xl border border-border/40 bg-card/40 p-5 space-y-3">
                   <div className="flex items-center gap-2 mb-1">
                     <div className="w-1 h-4 rounded-full bg-primary" />
@@ -195,22 +258,18 @@ const CreatePost = () => {
                     maxLength={2000}
                   />
                   <div className="flex items-center justify-between">
-                    <p className="text-xs text-muted-foreground">
-                      Max 2000 characters
-                    </p>
+                    <p className="text-xs text-muted-foreground">Max 2000 characters</p>
                     <span className={`text-xs transition-colors ${
-                      content.length > 1800
-                        ? "text-red-400"
-                        : content.length > 1400
-                        ? "text-yellow-400"
-                        : "text-muted-foreground"
+                      content.length > 1800 ? "text-red-400"
+                      : content.length > 1400 ? "text-yellow-400"
+                      : "text-muted-foreground"
                     }`}>
                       {content.length}/2000
                     </span>
                   </div>
                 </div>
 
-                {/* SUBMIT BUTTON */}
+                {/* SUBMIT */}
                 <Button
                   type="submit"
                   size="lg"
@@ -218,29 +277,21 @@ const CreatePost = () => {
                   className="w-full bg-gradient-to-r from-primary to-primary/80 glow-primary gap-2 font-display text-base h-12"
                 >
                   {loading ? (
-                    <>
-                      <Loader className="h-4 w-4 animate-spin" />
-                      Publishing...
-                    </>
+                    <><Loader className="h-4 w-4 animate-spin" /> Publishing...</>
                   ) : (
-                    <>
-                      <Send className="h-4 w-4" />
-                      Publish Anonymously
-                    </>
+                    <><Send className="h-4 w-4" /> Publish Anonymously</>
                   )}
                 </Button>
               </div>
 
-              {/* ── RIGHT COLUMN ── */}
-              <div className="flex flex-col gap-5">
+              {/* ── RIGHT COLUMN — desktop only ── */}
+              <div className="hidden lg:flex flex-col gap-5">
 
-                {/* CATEGORY SECTION */}
+                {/* CATEGORY — desktop button grid */}
                 <div className="rounded-xl border border-border/40 bg-card/40 p-5">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="w-1 h-4 rounded-full bg-primary" />
-                    <label className="text-sm font-semibold text-foreground">
-                      Category
-                    </label>
+                    <label className="text-sm font-semibold text-foreground">Category</label>
                     <span className="text-xs text-red-400 ml-1">Required</span>
                   </div>
                   <div className="flex flex-col gap-2">
@@ -278,7 +329,7 @@ const CreatePost = () => {
                   </div>
                 </div>
 
-                {/* TIPS CARD */}
+                {/* TIPS */}
                 <div className="rounded-xl border border-border/30 bg-card/20 p-5 space-y-3">
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-primary" />
@@ -299,7 +350,7 @@ const CreatePost = () => {
                   </ul>
                 </div>
 
-                {/* GUEST SIGNUP PROMPT */}
+                {/* GUEST PROMPT */}
                 {!user && (
                   <div className="rounded-xl border border-primary/20 bg-primary/5 p-5 space-y-2">
                     <p className="text-sm font-semibold text-foreground">

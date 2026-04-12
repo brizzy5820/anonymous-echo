@@ -36,7 +36,7 @@ const AuthLoadingScreen = () => (
 
 const ProtectedRoute = ({ isLoading, isAuthenticated, children }: AuthGateProps) => {
   if (isLoading) return <AuthLoadingScreen />;
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!isAuthenticated) return <Navigate to="/" replace />;
   return <>{children}</>;
 };
 
@@ -105,9 +105,9 @@ const AppRoutes = () => {
       <Route
         path="/profile"
         element={
-          <ProtectedRoute isLoading={isLoadingAuth} isAuthenticated={isAuthenticated}>
+         
             <Profile />
-          </ProtectedRoute>
+        
         }
       />
       <Route

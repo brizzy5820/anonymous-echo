@@ -56,7 +56,7 @@ const Categories = () => {
             <div className="border-b border-border/30 sticky top-16 z-40 bg-background/90 backdrop-blur-md">
               <div className="container mx-auto px-4 py-3 max-w-[1200px]">
                 <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
-                  <CategoryPill name="All" icon={Sparkle} slug="" active />
+                  <CategoryPill name="All" icon={Sparkle} slug=""  />
                   {CATEGORIES.map((cat) => (
                     <CategoryPill key={cat.slug} name={cat.name} icon={cat.icon} slug={cat.slug} />
                   ))}

@@ -162,7 +162,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* All page content sits above the background */}
-      <div className="relative z-10 flex flex-col min-h-screen">
+      <div className="relative z-10 flex  flex-col min-h-screen">
         <Navbar />
         <main className="flex-1 pb-20 sm:pb-0">{children}</main>
         <MobileBottomNav />
