@@ -16,6 +16,7 @@ export function CategoryPill({ name, icon:Icon, slug, active }: CategoryPillProp
     : slug === ""
       ? !pathname.startsWith("/category")
       : pathname === `/category/${slug}`;
+     
 
   const href = slug === "" ? "/" : `/category/${slug}`;
   useEffect(()=>{

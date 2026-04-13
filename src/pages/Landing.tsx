@@ -87,7 +87,7 @@ export default function Landing() {
           </span>
           <div className="flex items-center gap-2">
             {user ? (
-              <Link to="/home">
+              <Link to="/">
                 <Button size="sm" className="bg-gradient-to-r from-primary to-primary/80 gap-1.5">
                   Go to Feed <ArrowRight className="h-3.5 w-3.5" />
                 </Button>
@@ -155,7 +155,7 @@ export default function Landing() {
 
             {/* CTAs */}
             <div className="flex items-center justify-center gap-3 flex-wrap mb-12">
-              <Link to="/home">
+              <Link to="/">
                 <Button size="lg" className="bg-gradient-to-r from-primary to-primary/80 glow-primary gap-2 font-display text-base h-12 px-6">
                   <PenSquare className="h-4 w-4" />
                   Start Posting Free
@@ -200,7 +200,7 @@ export default function Landing() {
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {CATS.map(({ Icon, label }) => (
-              <Link to="/home" key={label}>
+              <Link to="/" key={label}>
                 <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-border/40 bg-card/50 hover:bg-card/80 hover:border-primary/30 transition-all duration-200 group">
                   <Icon className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
                   <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors truncate">
@@ -274,7 +274,7 @@ export default function Landing() {
             Your identity is always yours.
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap">
-            <Link to="/home">
+            <Link to="/">
               <Button size="lg" className="bg-gradient-to-r from-primary to-primary/80 glow-primary gap-2 font-display">
                 <PenSquare className="h-4 w-4" />
                 Post Anonymously

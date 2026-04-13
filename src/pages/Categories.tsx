@@ -52,6 +52,11 @@ const Categories = () => {
 
   return (
     <Layout>
+        <style>{`
+              .no-scrollbar::-webkit-scrollbar { display: none; }
+              .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+            `}</style>
+            
            {/* ── CATEGORY PILLS ────────────────────────── */}
             <div className="border-b border-border/30 sticky top-16 z-40 bg-background/90 backdrop-blur-md">
               <div className="container mx-auto px-4 py-3 max-w-[1200px]">
